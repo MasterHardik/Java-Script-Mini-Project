@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glowing bulb</title>
+    <link rel="stylesheet" href="bulb.css">
+</head>
+<body>
+    <h1>Flickering Bulb</h1>
+    <div class="bulb" id="bulb">
+
+    </div>
+    <br>
+    <label for="range">Adjust Fliker Time (ms)</label>
+    <br><br>
+    <input type="range" max="2000" min="1" name="range" onclick="x(this)" id="slider">
+    <div class="timer_value" id="time">1001 ms</div>
+    <script src="bulb.js"></script>
+</body>
+</html>
