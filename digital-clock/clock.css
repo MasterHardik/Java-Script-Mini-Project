@@ -1,0 +1,105 @@
+* {
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+    background-color: #272822;
+}
+
+body {
+    background-color: black;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.clock {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color:black;
+}
+
+.clock > div {
+    position: relative;
+    background: #fff;
+    width: 100px;
+    height: 100px;
+    text-align: center;
+    line-height: 100px;
+    font-size: 40px;
+    letter-spacing: 2px;
+    border-radius: 10px;
+    box-shadow: 0px 10px 15px 5px rgba(0, 0, 0, 0.1);
+    /* border: 1px inset #f5f5; */
+    overflow: hidden;
+}
+
+.clock .colon {
+    width: 25px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.clock > div:before {
+    content: attr(data-label);
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    width: 100px;
+    height: 20px;
+    line-height: 20px;
+    font-size: 12px;
+    color: #111;
+    letter-spacing: 1px;
+    background: transparent;
+}
+
+.clock > div > div {
+    font-family: "Barlow",sans-serif;
+    width: 100px;
+    height: 100px;
+    line-height: 90px;
+    transition: all 800ms ease-in-out;
+}
+
+
+@keyframes bounce {
+    0%, 100% {
+        margin-top: 0px;
+    }
+    50% {
+        margin-top: 20%;
+    }
+}
+
+.txt_white {
+    color: white;
+}
+
+.dark_mode {
+    background-color: #272822;
+}
+
+.light_mode {
+    color: #272822;
+    background-color: white;
+}
+
+
+img{
+    margin: 5px;
+    height: 20px;
+    right: 0;
+    top: 0;
+    position: fixed;
+    border-radius: 10px;
+}
+img:hover{
+    height: 23px;
+}
+
+/* For preview2 : bg color white and comment all other black traces */
+/* future update : feature for theme */
