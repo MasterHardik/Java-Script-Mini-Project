@@ -2,17 +2,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const startButton = document.getElementById('start-btn');
     const intro = document.getElementById('intro');
     const container = document.querySelector('.container');
-    const timerElement = document.querySelector('.timer')
-    const imgs = ['./images/TNT.jpg', './images/bomb.jpeg']; // Array of images
-    let currentIndex = 0;
+    const timerElement = document.querySelector('.timer');
+    const imgs = ['./media/TNT.jpg', './media/bomb.jpeg']; // Array of images
+    let currentIndex = 1;
 
     function changeBackgroundImage() {
         currentIndex = (currentIndex + 1) % imgs.length; // Cycle through the images
         container.style.backgroundImage = `url(${imgs[currentIndex]})`;
     }
 
-    // Change image every 30 seconds (30000 milliseconds)
-    setInterval(changeBackgroundImage, 30000);
+    // Change image every 20 seconds (20000 milliseconds)
+    setInterval(changeBackgroundImage, 20000);
 
     startButton.addEventListener('click', () => {
         intro.style.display = 'none'; // Hide instructions and button
@@ -20,15 +20,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function initGame() {
-        // Your game initialization code here
         const rows = 8;
         const cols = 8;
-        const mineCount = 15; // Adjust the number of mines here
+        const mineCount = 10; // Adjust the number of mines here
         const cells = [];
         let gameOver = false;
+        let seconds = 0;
+        let timer;
 
         const table = document.querySelector('table');
-        
+
         function startTimer() {
             timer = setInterval(() => {
                 seconds++;
@@ -39,17 +40,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function stopTimer() {
-            clearInterval(timerInterval);
+            clearInterval(timer);
         }
 
-        function initGame() {
+        function showWinningMessage() {
+            intro.style.display = 'block'; // Show the intro section
+            intro.textContent = `Congratulations! You won the game in ${Math.floor(seconds / 60)}:${seconds % 60 < 10 ? '0' : ''}${seconds % 60} min.`;
+            startButton.textContent = 'Play Again';
+            startButton.removeEventListener('click', startNewGame); // Remove existing listener
+            startButton.addEventListener('click', startNewGame); // Add new listener
+
+            function startNewGame() {
+                intro.style.display = 'none';
+                initGame(); // Restart the game
+            }
+        }
+
+        // Create and initialize the game board
+        function createBoard() {
             table.innerHTML = '';
             cells.length = 0;
             gameOver = false;
             seconds = 0;
             startTimer();
 
-            // Create board
+            // Create the board
             for (let r = 0; r < rows; r++) {
                 const tr = document.createElement('tr');
                 cells[r] = [];
@@ -60,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     td.dataset.col = c;
                     td.addEventListener('click', handleClick);
                     tr.appendChild(td);
-                    cells[r][c] = { isMine: false, isRevealed: false };
+                    cells[r][c] = { isMine: false, isRevealed: false, adjacentMines: 0, element: td };
                 }
                 table.appendChild(tr);
             }
@@ -75,34 +90,91 @@ document.addEventListener('DOMContentLoaded', () => {
                     placedMines++;
                 }
             }
+
+            // Calculate adjacent mines for each cell
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (!cells[r][c].isMine) {
+                        cells[r][c].adjacentMines = countAdjacentMines(r, c);
+                    }
+                }
+            }
         }
 
+        // Count the number of adjacent mines for a cell
+        function countAdjacentMines(row, col) {
+            const directions = [
+                [-1, -1], [-1, 0], [-1, 1],
+                [0, -1],         [0, 1],
+                [1, -1], [1, 0], [1, 1]
+            ];
+            let count = 0;
+            directions.forEach(([dRow, dCol]) => {
+                const newRow = row + dRow;
+                const newCol = col + dCol;
+                if (isValidCell(newRow, newCol) && cells[newRow][newCol].isMine) {
+                    count++;
+                }
+            });
+            return count;
+        }
+
+        // Reveal all the other mines when one mine is clicked
+        function revealAllOtherMines() {
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (cells[r][c].isMine) {
+                        const cell = cells[r][c].element;
+                        cell.classList.add('mine');
+                        cell.textContent = '💣';
+                    }
+                }
+            }
+        }
+
+        // Check if a cell is within the grid boundaries
+        function isValidCell(row, col) {
+            return row >= 0 && row < rows && col >= 0 && col < cols;
+        }
+
+        // Handle cell click
         function handleClick(event) {
             if (gameOver) return;
 
             const cell = event.target;
-            const row = cell.dataset.row;
-            const col = cell.dataset.col;
+            const row = parseInt(cell.dataset.row);
+            const col = parseInt(cell.dataset.col);
 
             if (cells[row][col].isRevealed) return;
             cells[row][col].isRevealed = true;
-
             if (cells[row][col].isMine) {
-                cell.classList.add('mine');
+                stopTimer();
+                revealAllOtherMines();
+                cell.classList.add('mine-blast');
                 cell.textContent = '💣';
                 gameOver = true;
-                stopTimer();
                 alert('Game Over! You hit a mine.');
                 return;
             }
 
             cell.classList.add('revealed');
-            cell.textContent = ''; // Empty cell for now
+            if (cells[row][col].adjacentMines > 0) {
+                cell.textContent = cells[row][col].adjacentMines;
+            } else {
+                cell.textContent = '';
+                revealEmptyCells(row, col);
+            }
 
-            // Reveal surrounding cells if the current cell is empty
-            revealEmptyCells(row, col);
+            // Check for win condition (all non-mine cells revealed)
+            if (checkWinCondition()) {
+                stopTimer();
+                gameOver = true;
+                showWinningMessage();
+                table.style.display = 'none'; // Hide the game board
+            }
         }
 
+        // Reveal empty cells recursively
         function revealEmptyCells(row, col) {
             const directions = [
                 [-1, -1], [-1, 0], [-1, 1],
@@ -111,22 +183,38 @@ document.addEventListener('DOMContentLoaded', () => {
             ];
 
             directions.forEach(([dRow, dCol]) => {
-                const newRow = parseInt(row) + dRow;
-                const newCol = parseInt(col) + dCol;
+                const newRow = row + dRow;
+                const newCol = col + dCol;
 
-                if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < cols) {
-                    const cell = document.querySelector(`td[data-row="${newRow}"][data-col="${newCol}"]`);
+                if (isValidCell(newRow, newCol)) {
+                    const cell = cells[newRow][newCol].element;
                     if (!cells[newRow][newCol].isRevealed && !cells[newRow][newCol].isMine) {
                         cells[newRow][newCol].isRevealed = true;
                         cell.classList.add('revealed');
-                        cell.textContent = ''; // Empty cell for now
-                        revealEmptyCells(newRow, newCol);
+                        if (cells[newRow][newCol].adjacentMines === 0) {
+                            cell.textContent = '';
+                            revealEmptyCells(newRow, newCol);
+                        } else {
+                            cell.textContent = cells[newRow][newCol].adjacentMines;
+                        }
                     }
                 }
             });
         }
 
-        // Initialize the game
-        initGame();
+        // Check for win condition
+        function checkWinCondition() {
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (!cells[r][c].isMine && !cells[r][c].isRevealed) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        // Initialize the game on page load
+        createBoard();
     }
 });

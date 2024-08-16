@@ -27,15 +27,13 @@
     width: 100vw;
     text-align: center;
     background-color: #202020;
-    /* color: white; */
     font-size: 2rem;
     flex-direction: column;
-    background-image: url(./images/bomb.jpeg);
-    animation: float 30s ease-in-out infinite; /* Apply the animation */
+    background-image: url(./media/bomb.jpeg);
+    animation: float 30s ease-in-out infinite; /* Applied the animation */
     transition: background-image 1s ease-in-out;
 }    
 
-/*  */
 
 #intro {
     display: flex;
@@ -62,23 +60,23 @@
 }
 
 #start-btn:hover {
-    background-color: #45a049; /* Darker green on hover */
+    background-color: #45a049;
 }
 
 #game.hidden {
     display: none;
 }
 
-/*  */
+/* Below code cna be used for creating iphone like glassy Background in another projects too */
+
 .grid{
-    /* border: 1px solid red; */
     height: 80%;
-    width: 40%;
+    width: 600px;
     background: rgba(255, 255, 255, 0.1); /* Slightly white with opacity */
-            border-radius: 15px;
-            backdrop-filter: blur(10px); /* Creates the glassy effect */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
-            color: black;
+    border-radius: 15px;
+    backdrop-filter: blur(10px); /* Creates the glassy effect */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    color: black;
 }
 
 
@@ -105,10 +103,15 @@ td.revealed {
     cursor: default;
 }
 
-td.mine {
+td.mine-blast {
     background-color: red;
     color: white;
 }
+
+td.mine {
+    color: white;
+}
+
 
 .timer {
     padding: 5px;
@@ -139,11 +142,25 @@ td.mine {
 }
 
 .more-details:hover {
-    background-color: #0056b3; /* Darker blue on hover */
-    transform: scale(1.1); /* Slightly enlarge on hover */
+    background-color: #0056b3;
+    transform: scale(1.1);
 }
 
 .more-details:active {
     background-color: #004494;
     transform: scale(0.9);
+}
+
+
+
+@media screen and (max-width: 600px) {
+
+    .grid {
+        height: 420px;
+        width: 330px;
+    }
+    .container{
+        font-size: 1rem;
+    }
+
 }
